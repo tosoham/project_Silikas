@@ -1,0 +1,35 @@
+%0 = _x                               # EncryptedTensor<int8, shape=(1, 57)>
+%1 = [[   0] [  ... 5] [  78]]        # ClearTensor<int8, shape=(57, 1)>                    @ /linear/Gemm.matmul
+%2 = matmul(%0, %1)                   # EncryptedTensor<uint6, shape=(1, 1)>                @ /linear/Gemm.matmul
+%3 = subgraph(%2)                     # EncryptedTensor<uint1, shape=(1, 1)>
+return %3
+
+Subgraphs:
+
+    %3 = subgraph(%2):
+
+         %0 = input                            # EncryptedTensor<uint6, shape=(1, 1)>          @ /linear/Gemm.matmul
+         %1 = astype(%0, dtype=float64)        # EncryptedTensor<float64, shape=(1, 1)>        @ /linear/Gemm.matmul_rounding
+         %2 = 0                                # ClearScalar<uint1>
+         %3 = add(%1, %2)                      # EncryptedTensor<float64, shape=(1, 1)>
+         %4 = [[0]]                            # ClearTensor<uint1, shape=(1, 1)>
+         %5 = subtract(%3, %4)                 # EncryptedTensor<float64, shape=(1, 1)>
+         %6 = 0.0001828146547709458            # ClearScalar<float64>
+         %7 = multiply(%6, %5)                 # EncryptedTensor<float64, shape=(1, 1)>
+         %8 = [0.3414752]                      # ClearTensor<float32, shape=(1,)>
+         %9 = add(%7, %8)                      # EncryptedTensor<float64, shape=(1, 1)>
+        %10 = negative(%9)                     # EncryptedTensor<float64, shape=(1, 1)>
+        %11 = 0                                # ClearScalar<uint1>
+        %12 = logaddexp(%11, %10)              # EncryptedTensor<float64, shape=(1, 1)>
+        %13 = negative(%12)                    # EncryptedTensor<float64, shape=(1, 1)>
+        %14 = exp(%13)                         # EncryptedTensor<float64, shape=(1, 1)>
+        %15 = 0.003920542242136816             # ClearScalar<float64>
+        %16 = divide(%14, %15)                 # EncryptedTensor<float64, shape=(1, 1)>
+        %17 = 0                                # ClearScalar<uint1>
+        %18 = add(%16, %17)                    # EncryptedTensor<float64, shape=(1, 1)>
+        %19 = rint(%18)                        # EncryptedTensor<float64, shape=(1, 1)>
+        %20 = 0                                # ClearScalar<uint1>
+        %21 = 255                              # ClearScalar<uint8>
+        %22 = clip(%19, %20, %21)              # EncryptedTensor<float64, shape=(1, 1)>
+        %23 = astype(%22, dtype=int_)          # EncryptedTensor<uint1, shape=(1, 1)>
+        return %23

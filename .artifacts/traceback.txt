@@ -1,0 +1,58 @@
+Traceback (most recent call last):
+  File "/home/nemo/.conda/envs/n_env/lib/python3.10/site-packages/concrete/fhe/compilation/module_compiler.py", line 423, in compile
+    ).convert_many(graphs, mlir_context)
+  File "/home/nemo/.conda/envs/n_env/lib/python3.10/site-packages/concrete/fhe/mlir/converter.py", line 107, in convert_many
+    def main(*args):
+  File "/home/nemo/.conda/envs/n_env/lib/python3.10/site-packages/mlir/dialects/_func_ops_ext.py", line 187, in decorator
+    return_values = f(*func_args, **func_kwargs)
+  File "/home/nemo/.conda/envs/n_env/lib/python3.10/site-packages/concrete/fhe/mlir/converter.py", line 129, in main
+    self.node(ctx, node, preds)
+  File "/home/nemo/.conda/envs/n_env/lib/python3.10/site-packages/concrete/fhe/mlir/converter.py", line 310, in node
+    conversion = converter(ctx, node, preds)
+  File "/home/nemo/.conda/envs/n_env/lib/python3.10/site-packages/concrete/fhe/mlir/converter.py", line 803, in tlu
+    ctx.error(highlights)
+  File "/home/nemo/.conda/envs/n_env/lib/python3.10/site-packages/concrete/fhe/mlir/context.py", line 272, in error
+    GraphProcessor.error(self.graph, highlights)
+  File "/home/nemo/.conda/envs/n_env/lib/python3.10/site-packages/concrete/fhe/representation/graph.py", line 1040, in error
+    raise RuntimeError(message)
+RuntimeError: Function you are trying to compile cannot be compiled
+
+%0 = _x                               # EncryptedTensor<int8, shape=(1, 57)>        ∈ [-127, 127]
+%1 = [[   0] [  ... 5] [  78]]        # ClearTensor<int8, shape=(57, 1)>            ∈ [-122, 127]            @ /linear/Gemm.matmul
+%2 = matmul(%0, %1)                   # EncryptedTensor<int18, shape=(1, 1)>        ∈ [-85239, 43409]        @ /linear/Gemm.matmul
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ this 18-bit value is used as an input to a table lookup
+                                                                                                                                   /home/nemo/.conda/envs/n_env/lib/python3.10/site-packages/concrete/ml/quantization/quantized_ops.py:385
+%3 = subgraph(%2)                     # EncryptedTensor<uint8, shape=(1, 1)>        ∈ [0, 255]
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ but only up to 16-bit table lookups are supported
+                                                                                               /home/nemo/.conda/envs/n_env/lib/python3.10/site-packages/concrete/ml/quantization/quantizers.py:717
+return %3
+
+Subgraphs:
+
+    %3 = subgraph(%2):
+
+         %0 = input                            # EncryptedTensor<uint6, shape=(1, 1)>          @ /linear/Gemm.matmul
+         %1 = astype(%0, dtype=float64)        # EncryptedTensor<float64, shape=(1, 1)>        @ /linear/Gemm.matmul_rounding
+         %2 = 0                                # ClearScalar<uint1>
+         %3 = add(%1, %2)                      # EncryptedTensor<float64, shape=(1, 1)>
+         %4 = [[0]]                            # ClearTensor<uint1, shape=(1, 1)>
+         %5 = subtract(%3, %4)                 # EncryptedTensor<float64, shape=(1, 1)>
+         %6 = 0.0001828146547709458            # ClearScalar<float64>
+         %7 = multiply(%6, %5)                 # EncryptedTensor<float64, shape=(1, 1)>
+         %8 = [0.3414752]                      # ClearTensor<float32, shape=(1,)>
+         %9 = add(%7, %8)                      # EncryptedTensor<float64, shape=(1, 1)>
+        %10 = negative(%9)                     # EncryptedTensor<float64, shape=(1, 1)>
+        %11 = 0                                # ClearScalar<uint1>
+        %12 = logaddexp(%11, %10)              # EncryptedTensor<float64, shape=(1, 1)>
+        %13 = negative(%12)                    # EncryptedTensor<float64, shape=(1, 1)>
+        %14 = exp(%13)                         # EncryptedTensor<float64, shape=(1, 1)>
+        %15 = 0.003920542242136816             # ClearScalar<float64>
+        %16 = divide(%14, %15)                 # EncryptedTensor<float64, shape=(1, 1)>
+        %17 = 0                                # ClearScalar<uint1>
+        %18 = add(%16, %17)                    # EncryptedTensor<float64, shape=(1, 1)>
+        %19 = rint(%18)                        # EncryptedTensor<float64, shape=(1, 1)>
+        %20 = 0                                # ClearScalar<uint1>
+        %21 = 255                              # ClearScalar<uint8>
+        %22 = clip(%19, %20, %21)              # EncryptedTensor<float64, shape=(1, 1)>
+        %23 = astype(%22, dtype=int_)          # EncryptedTensor<uint1, shape=(1, 1)>
+        return %23

@@ -1,0 +1,7 @@
+[project]
+name = "rag_model"
+version = "0.1.0"
+description = "A RAG model based on Gemma 3 for our research purposes."
+authors = [{name = "Soham Das", email = "todrsoham@gmail.com"}]
+dependencies = ["Python3.12"]
+
